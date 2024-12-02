@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Understanding Bias in Large-Scale Visual Datasets.">
+  <meta name="keywords" content="dataset bias, visual datasets">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Understanding Bias in Large-Scale Visual Datasets</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="data:,">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Understanding Bias in Large-Scale Visual Datasets</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://boyazeng.github.io">Boya Zeng</a><sup>1</sup>*,</span>
+            <span class="author-block">
+              <a href="https://davidyyd.github.io/">Yida Yin</a><sup>2</sup>*,</span>
+            <span class="author-block">
+              <a href="https://liuzhuang13.github.io/">Zhuang Liu</a><sup>3</sup>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>University of Pennsylvania,</span>
+            <span class="author-block"><sup>2</sup>UC Berkeley</span>,
+            <span class="author-block"><sup>3</sup>Meta FAIR</span><br>
+            <span style="font-size: smaller;">*equal contribution</span>
+          </div>
+
+          <p>
+            <span class="is-size-5"><b>NeurIPS 2024</b><span>
+          </p>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="https://openreview.net/forum?id=NGIIHlAEBt"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <!-- 
+              <span class="link-block">
+                <a href=""
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              -->
+              <!-- Video Link. -->
+              <span class="link-block">
+                <a href="https://www.youtube.com/watch?v=7cIaZmMhmZY"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                  </span>
+                  <span>Video</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/boyazeng/understand_bias"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+            </div>
+
+          </div>
+          <div class="columns is-centered">
+            <div class="column is-four-fifths">
+              <img src="./static/images/teaser.png" style="max-width: 90%; height: auto;" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            A recent study (<a href="https://arxiv.org/abs/2403.08632">Liu and He, 2024</a>) has shown that large-scale visual datasets are very biased: they can be easily classified by modern neural networks. However, the concrete forms of bias among these datasets remain unclear. In this study, we propose a framework to identify the unique visual attributes distinguishing these datasets. Our approach applies various transformations to extract semantic, structural, boundary, color, and frequency information from datasets, and assess how much each type of information reflects their bias. We further decompose their semantic bias with object-level analysis, and leverage natural language methods to generate detailed, open-ended descriptions of each dataset's characteristics. Our work aims to help researchers understand the bias in existing large-scale pre-training datasets, and build more diverse and representative ones in the future.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+    
+    <div class="columns is-centered">
+      <div class="column is-full">
+        <h2 class="title is-3 has-text-centered">Background: Dataset Classification, Revisited</h2>
+      </div>
+    </div>
+    <p>
+      Dataset classification is a classification task where each dataset forms a class and models are trained to predict the dataset origin of each image.
+      Serving as an indicator of dataset bias, it was proposed by <a href="https://ieeexplore.ieee.org/document/5995347">Torralba and Efros</a> in 2011 on smaller-scale datasets, and recently revisited by <a href="https://arxiv.org/abs/2403.08632">Liu and He</a> on large-scale pre-training datasets.
+    </p>
+    <br>
+    <div class="columns is-centered">
+      <!-- Torralba and Efros. -->
+      <div class="column">
+        <div class="content">
+          <h3 class="title is-4">2011</h3>
+          <p>
+            Back in 2011, the <i>"Name That Dataset"</i> experiment proposed by <a href="https://ieeexplore.ieee.org/document/5995347">Torralba and Efros</a> revealed the built-in bias of visual datasets at that time (Caltech-101, COIL-100, LabelMe, etc.)- the datasets could be classified very well by SVM classifiers.
+          </p>
+          <div style="text-align: center;">
+            <img src="./static/images/bg/torralba_efros.jpg" style="height: 320px; width: auto;">
+          </div>
+        </div>
+      </div>
+      <!--/ Torralba and Efros. -->
+
+      <!-- Liu and He. -->
+      <div class="column">
+        <h3 class="title is-4">2024</h3>
+        <div class="columns is-centered">
+          <div class="column content">
+            <p>
+              Surprisingly, after a decade's effort in creating more diverse and comprehensive visual datasets, the current largest and uncurated datasets (e.g., <a href="https://arxiv.org/abs/1503.01817">YFCC100M</a>, <a href="https://arxiv.org/abs/2102.08981">CC12M</a>, <a href="https://arxiv.org/abs/2304.14108">DataComp-1B</a>) can still be classified with remarkably high accuracy.
+            </p>
+            <div style="text-align: center;">
+              <img src="./static/images/bg/ycd15.png" style="height: 320px; width: auto;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--/ Liu and He. -->
+
+    <div class="columns is-centered">
+      <div class="column is-full has-text-centered">
+        <p style="font-size: larger;">
+          Although these large-scale datasets are very biased, a lingering question remains:<br>
+          <span style="color: red; font-size: larger;"><i>what are the concrete forms of bias among them?</i></span>
+        </p>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- Transformations. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3 has-text-centered">Isolating Bias with Transformations</h2>
+
+        <div class="column is-full">
+          <p>
+            To better understand this, we apply various transformations to the datasets, selectively preserving or suppressing specific types of information.
+            We then perform dataset classification on the transformed datasets and analyze its performance.
+          </p>
+        </div>
+        
+        <!-- Reference. -->
+        <h3 class="title is-4">Reference</h3>
+        <div class="content has-text-justified">
+          <div style="text-align: center;">
+            <img src="./static/images/trans/baseline.jpg" style="max-width: 70%; height: auto;">
+          </div>
+          <p>
+            The dataset classification validation accuracy is 82.0% on the original datasets: YFCC, CC, and DataComp (abbreviated as YCD).
+          </p>
+        </div>
+        <!--/ Reference. -->
+        
+        <!-- Semantics. -->
+        <h3 class="title is-4">Semantics</h3>
+        <div class="content has-text-justified">
+          <div style="text-align: center;">
+            <img src="./static/images/trans/trans_semantic.png" style="max-width: 70%; height: auto;">
+          </div>
+          <p>
+            We extract semantic components from the images with decreasing levels of spatial details using semantic segmentation, object detection, and LLaVA captioning.
+            The dataset classification accuracy is consistently high on the resulting datasets of these transformations.
+            Also, passing the images through a VAE to potentially reduce low-level signature only marginally decreases the accuracy from the 82% reference.
+            These highlight that <b><i>semantic bias is an important component of dataset bias in YCD</i></b>.
+          </p>
+        </div>
+        <!--/ Semantics. -->
+
+        <!-- Structures. -->
+        <h3 class="title is-4">Structures</h3>
+        <div class="content has-text-justified">
+          <div style="text-align: center;">
+            <img src="./static/images/trans/trans_structure.jpg" style="max-width: 70%; height: auto;">
+          </div>
+          <p>
+            Next, we analyze the semantic bias in its most rudimentary forms, object shape and spatial geometry, using Canny edge, Segment Anything Model (SAM) contour, and depth estimation.
+            The close-to-reference dataset classification accuracies on these transformed datasets show that <b><i>object shape and spatial geometry variations are significant among the YCD datasets</i></b>.
+          </p>
+        </div>
+        <!--/ Structures. -->
+
+        <!-- Spatial Permutations. -->
+        <h3 class="title is-4">Spatial Permutations</h3>
+        <div class="content has-text-justified">
+          <div style="text-align: center;">
+            <img src="./static/images/trans/trans_spatial.jpg" style="max-width: 70%; height: auto;">
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-around;">
+            <!-- Image on the left -->
+            <div style="flex: 1; text-align: center;">
+              <img src="./static/images/trans/patch_shuf.png" style="max-width: 85%; height: auto;">
+            </div>
+            <!-- Text on the right -->
+            <div style="flex: 1; padding-left: 20px;">
+              <p>
+                We shuffle an image on the pixel and the patch level, following a fixed order and a random order for all images.
+                The significant performance drop with pixel shuffling shows <b><i>completely destructing the local structure in YCD can reduce its dataset bias to a large extent</i></b>. However, the minimal accuracy decrease after shuffling patches of size 16 indicates <b><i>patch-level local structures in spatial information is sufficient for identifying visual signatures of the YCD datasets</i></b>.
+              </p>
+            </div>
+          </div>
+        </div>
+        <!--/ Spatial Permutations. -->
+
+        <!-- RGB. -->
+        <h3 class="title is-4">RGB</h3>
+        <div class="content has-text-justified">
+          <div style="text-align: center;">
+            <img src="./static/images/trans/trans_color.jpg" style="max-width: 70%; height: auto;">
+            <img src="./static/images/trans/ori_dist.png" style="max-width: 85%; height: auto;">
+          </div>
+          <p>
+            Even if we take only the mean RGB value for each image, the datasets can still be classified with higher-than-chance-level accuracy.
+            The distribution of RGB channels for each dataset shows that <b><i>YFCC is much darker than CC and DataComp</i></b>.
+          </p>
+        </div>
+        <!--/ RGB. -->
+
+        <!-- Frequency. -->
+        <h3 class="title is-4">Frequency</h3>
+        <div class="content has-text-justified">
+          <div style="text-align: center;">
+            <img src="./static/images/trans/trans_freq.png" style="max-width: 70%; height: auto;">
+          </div>
+          <p>We perform low-pass and high-pass filters to isolate low-frequency (general structure and smooth variations) and high-frequency (textures and sharp transitions) information.
+            The high accuracy of models trained on either frequency component indicates that <b><i>visual bias in the YCD datasets exists in both low-frequency and high-frequency components</i></b>.
+          </p>
+        </div>
+        <!--/ Frequency. -->
+
+        <!-- Synthetic Image. -->
+        <h3 class="title is-4">Synthetic Image</h3>
+        <div class="content has-text-justified">
+          <div style="text-align: center;">
+            <img src="./static/images/trans/trans_synth.jpg" style="max-width: 70%; height: auto;">
+          </div>
+          <p>
+            We train an unconditional diffusion model on each dataset.
+            Dataset classification on the synthetic data generated from each model still reaches very high accuracy.
+            This shows that the <b><i>synthetic images sampled from a diffusion model can inherit the bias in the model's training images</i></b>.
+            Also, we revert the LLaVA-generated image captions to the image domain using text-to-image diffusion, resulting in a 58% classification accuracy.
+            This further confirms that <b><i>semantic discrepancy is a major contributor to dataset bias</i></b>.
+          </p>
+        </div>
+        <!--/ Synthetic Image. -->
+      </div>
+    </div>
+    <!--/ Transformations. -->
+
+    <div class="columns is-centered">
+      <div class="column is-full has-text-centered">
+        <p style="font-size: larger;">
+          Semantic bias is pronounced in YCD datasets…<br>
+          <span style="color: red; font-size: larger;"><i>how can we explain the semantic patterns?</i></span>
+        </p>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- Explaining. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3 has-text-centered">Explaining Semantic Bias among Datasets</h2>
+
+        <!-- Object-level Queries. -->
+        <h3 class="title is-4">Object-level Queries</h3>
+        <div class="content has-text-justified">
+          <div style="text-align: center;">
+            <div style="text-align: center;">
+              <p>Object classes with highest proportions of YFCC, CC, or DataComp images</p>
+            </div>
+            <img src="./static/images/explain/dist.png" style="max-width: 85%; height: auto;">
+            <div style="text-align: center;">
+              <p>Object class ranking from logistic regression coefficients</p>
+            </div>
+            <img src="./static/images/explain/concept_rank.png" style="max-width: 85%; height: auto;">
+          </div>
+          <br>
+          <p>
+            Based on the image-level object annotations from ImageNet, LVIS, and ADE20k, we can identify the object classes representative of a certain dataset by either looking directly at the object distribution across datasets or their object class rankings according to coefficients of logistic regression model trained on a binary vector representing object presence.
+            YFCC emphasizes outdoor scenes, while CC and DataComp focus on household items and products.
+          </p>
+          <div style="text-align: center;">
+            <img src="./static/images/explain/unique_objects.png" style="max-width: 40%; height: auto;">
+          </div>
+          <p>
+            On average, YFCC contains the highest number of unique objects in each image, while DataComp exhibits the lowest.
+          </p>
+        </div>
+        <!--/ Object-level Queries. -->
+
+        <!-- Open-ended Language-based Analysis. -->
+        <h3 class="title is-4">Open-ended Language-based Analysis</h3>
+        <div class="content has-text-justified">
+          <p>
+            We use LLaVA-generated captions as a proxy to analyze the semantic themes in each dataset. Specifically, we use LDA for unsupervised topic discovery and procedurally prompt an LLM for summarization of the dataset characteristics.
+          </p>
+          <div style="text-align: center;">
+            <div style="text-align: center;">
+              <p>Unsupervised Topic Discovery (Latent Dirichlet Allocation)</p>
+            </div>
+            <img src="./static/images/explain/LDA.png" style="max-width: 85%; height: auto;">
+            <div style="text-align: center;">
+              <p>LLM Summarization</p>
+            </div>
+            <img src="./static/images/explain/llm_summarize_complete.png" style="max-width: 85%; height: auto;">
+          </div>
+          <p>
+            In summary, YFCC is characterized by abundant outdoor, natural, and human-related scenes, while DataComp concentrates on static objects and synthetic images with clean backgrounds and minimal human presence. In contrast, CC blends elements of both YFCC's dynamic scenes and DataComp's static imagery.
+          </p>
+        </div>
+        <!--/ Open-ended Language-based Analysis. -->
+      </div>
+    </div>
+    <!--/ Explaining. -->
+
+    <hr>
+
+    <!-- Discussion. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-4 has-text-centered">Lessons from the Curation of YFCC, CC, and DataComp</h2>
+      </div>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-one-third">
+        <!--
+        <div style="text-align: center;">
+          <img src="./static/images/discuss/datacomp.png" style="height: 70px; width: auto;">
+        </div>
+        -->
+        <p><strong>Filtering based on a reference dataset may inherit its bias.</strong></p>
+        <p>DataComp has the fewest unique objects per image. This is possibly because DataComp filters for images with visual content close to ImageNet data in the embedding space. Therefore, the remaining images tend to be object-centric.</p>
+      </div>
+      <div class="column is-one-third">
+        <!--
+        <div style="text-align: center;">
+          <img src="./static/images/discuss/flickr.png" style="height: 70px; width: auto;">
+        </div>
+        -->
+        <p><strong>The source website's image collection mechanism can introduce bias.</strong></p>
+        <p>YFCC is heavily skewed towards outdoor scenes and human interactions. This bias likely stems from its reliance on a single data source, Flickr.com, where user-uploaded content often focuses on personal photos, landscapes, and social interactions.</p>
+      </div>
+      <div class="column is-one-third">
+        <!--
+        <div style="text-align: center;">
+          <img src="./static/images/discuss/commoncrawl.png" style="height: 70px; width: auto;">
+        </div>
+        -->
+        <p><strong>Web-scraped images would naturally contain more digital graphics.</strong></p>
+        <p>Since CC and DataComp images are from Internet webpages, professionally created content like advertisements, infographics, and digital media are prioritized. Dataset users should evaluate if this composition aligns with the downstream goals.</p>
+      </div>
+    </div>
+    <!--/ Discussion. -->
+  </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@inproceedings{zengyin2024bias,
+  title={Understanding Bias in Large-Scale Visual Datasets},
+  author={Boya Zeng and Yida Yin and Zhuang Liu},
+  booktitle={The Thirty-eighth Annual Conference on Neural Information Processing Systems},
+  year={2024},
+}</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            Website adapted from the following <a
+              href="https://github.com/nerfies/nerfies.github.io">source code</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
